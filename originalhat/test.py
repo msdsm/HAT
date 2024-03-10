@@ -9,10 +9,14 @@ from tqdm import tqdm
 from PIL import Image
 import numpy as np
 
-data_path = "~/m1/myhat/dataset/horse_test"
+
+data_path = "~/m1/myhat/dataset/horse_train"
 data_path = os.path.expanduser(data_path)
-lowimg_files = os.listdir(data_path + "/horse_mosaic")
-gtimg_files = os.listdir(data_path + "/horse_gt")
+lowimg_path = data_path + "/horse_mosaic/"
+gtimg_path = data_path + "/horse_gt/"
+lowimg_files = os.listdir(lowimg_path)
+gtimg_files = os.listdir(gtimg_path)
+
 
 transform = torchvision.transforms.Compose([
     torchvision.transforms.ToTensor(),
@@ -20,8 +24,9 @@ transform = torchvision.transforms.Compose([
     torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
 test_dataset = HAT_Dataset(
-    data_path=data_path,
-    lowimg_files=lowimg_files,
+    lowimg_path = lowimg_path,
+    gtimg_path = gtimg_path,
+    lowimg_files = lowimg_files,
     gtimg_files=gtimg_files,
     transform=transform
 )
@@ -37,7 +42,9 @@ model = HAT(
     upscale=1 # 2にしてnetworkの最後の層でプーリングつけても良い
 )
 if torch.cuda.device_count() > 1:
-    model.DataParallel(model, device_ids=[0, 1, 2, 3])
+    print("並列にした")
+    model = nn.DataParallel(model)
+    
 model.to(device)
 
 #########################超重要#######################
