@@ -74,7 +74,6 @@ for epoch in range(epochs):
             gtimgs = gtimgs.to(device)
 
             optimizer.zero_grad()
-            
             output = model.forward(lowimgs)
             loss = criterion(output, gtimgs)
             loss.backward()

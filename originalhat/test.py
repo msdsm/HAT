@@ -56,7 +56,7 @@ with tqdm(test_dataloader, total=len(test_dataloader)) as pbar:
         name = lowimgs[i].split("/")[-1]
         lowimgs = lowimgs.to(device)
         gtimgs = gtimgs.to(device) # 使わない、テスト時の損失計算するなら使う
-
+        lowimgs = lowimgs.unsqueeze(0)
         output = model.forward(lowimgs)
 
         output_img = output.to("cpu").numpy().copy().transpose(1, 2, 0).astype(np.float32)
