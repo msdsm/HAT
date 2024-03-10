@@ -9,7 +9,8 @@ from tqdm import tqdm
 from PIL import Image
 import numpy as np
 
-data_path = "../dataset/horse_test"
+data_path = "~/m1/myhat/dataset/horse_test"
+data_path = os.path.expanduser(data_path)
 lowimg_files = os.listdir(data_path + "/horse_mosaic")
 gtimg_files = os.listdir(data_path + "/horse_gt")
 
@@ -38,8 +39,6 @@ model = HAT(
 if torch.cuda.device_count() > 1:
     model.DataParallel(model, device_ids=[0, 1, 2, 3])
 model.to(device)
-criterion = nn.L1Loss()
-optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
 
 #########################超重要#######################
 parameters_load_path = "./experiments/pretrained_models/HAT-L_SRx2_ImageNet-pretrain.pth"
