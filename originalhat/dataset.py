@@ -30,6 +30,8 @@ class HAT_Dataset(torch.utils.data.Dataset):
         gtimg = Image.open(self.gtimg_path + self.gtimg_files[index])
         lowimg = self.transform(lowimg)
         gtimg = self.transform(gtimg)
+        # lowimg.requires_grad = True
+        # gtimg.requires_grad = True
 
         '''
         # ここからHAT/hat/data/imagenet_paired_dataset.py参考にした

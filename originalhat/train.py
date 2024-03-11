@@ -39,13 +39,16 @@ else:
 
 model = HAT(
     img_size=256,
-    upscale=1 # 2にしてnetworkの最後の層でプーリングつけても良い
+    upscale=1,  # 2にしてnetworkの最後の層でプーリングつけても良い
+    upsampler='pixelshuffle'
 )
 if torch.cuda.device_count() > 1:
     model = nn.DataParallel(model)
 model.to(device)
+
 criterion = nn.L1Loss()
-optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
+# criterion = nn.MSELoss()
+# optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
 
 train_losses = []
 '''
@@ -60,9 +63,20 @@ model.load_state_dict(torch.load(parameters_load_path))
 RuntimeError: element 0 of tensors does not require grad and does not have a grad_fn
 エラー解消として下の文を追加するということがweb検索でヒット
 '''
-torch.set_grad_enabled(True)  # Context-manager 
+# torch.set_grad_enabled(True)  # Context-manager 
 # 解決しなかった
 
+"""
+for p in model.parameters():
+    print(p)
+    if p.requires_grad == False:
+        print(p)
+"""
+"""
+for name, param in model.named_parameters():
+    param.requires_grad = True
+"""
+optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
 
 for epoch in range(epochs):
     print("epoch {}:".format(str(epoch+1)))
@@ -74,7 +88,8 @@ for epoch in range(epochs):
             gtimgs = gtimgs.to(device)
 
             optimizer.zero_grad()
-            output = model.forward(lowimgs)
+            output = model(lowimgs)
+            #print(output.requires_grad)
             loss = criterion(output, gtimgs)
             loss.backward()
             optimizer.step()
